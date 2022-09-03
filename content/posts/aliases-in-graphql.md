@@ -1,152 +1,74 @@
 ---
-title: Rename Fields by Using Aliases in GraphQL
+title: 笔记
 description: Learn how to rename fields of a GraphQL object by using aliases.
 date: 2020-07-05
 tags: [GraphQL, Today I Learned]
 ---
 
-When working with a GraphQL API, you may want to rename a field to something
-other than what the API has to offer. Aliases exist as part of the GraphQL spec
-to solve this exact problem.
 
-Aliases allow you to rename a single field to whatever you want it to be. They
-are defined client-side, so you don’t need to update your API to use them.
+> **面完作业帮以后，沉默了，脑袋里始终都出现初中数学老师经常说的一句话：读懂题就做对了一半了。**
 
-<!--more-->
+```js
+/* 不使用async await 实现一个函数createFlow,使得以下代码输出方式如下：
+// 延迟1s
+1
+2
+// 延迟3s
+3
+4
+*/
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const log = console.log;
+createFlow([
+  () => delay(1000).then(() => log(1)),
+  () => log(2),
+  () => delay(3000).then(() => log(3)),
+  () => log(4),
+]);
+```
 
-Imagine requesting data using the following query from an API:
+正常人看到这道题都知道题里的**_延迟 1s 1 2 延迟 3s 3 4_**，是在描述一条时间线，我却理解成了：**_代码开始执行了，一秒后输出 1，2、三秒后输出 3,4。_**
 
-```graphql
-query GetEntries {
-  entries {
-    id
-    updated_at
-  }
+彻底偏了，出题人想让候选人实现的是`createFlow`函数接收的数组，能够**按照数组顺序执行**，且如果函数执行返回的是 promise，那么则等到 promise 变为 fulfilled（成功态），再执行数组的下一项函数。
+
+最可笑的是，面完试没过 3 分钟，我就写出了正确答案：
+
+```js
+const createFlow = promises => {
+  promises.reduce((result, fn) => {
+    return result.then(() => {
+      return fn();
+    });
+  }, Promise.resolve());
+};
+```
+
+### 实现 strBuilder
+
+```js
+function strBuilder(str) {}
+
+var hello = strBuilder("Hello, ");
+var kyle = hello("Kyle");
+var susan = hello("Susan");
+var question = kyle("?")();
+var greeting = susan("!")();
+
+// todo 实现 strBuilder, 使以下输出都为 true
+console.log(strBuilder("Hello, ")("")("Kyle")(".")("")() === "Hello, Kyle.");
+console.log(hello() === "Hello, ");
+console.log(kyle() === "Hello, Kyle");
+console.log(susan() === "Hello, Susan");
+console.log(question === "Hello, Kyle?");
+console.log(greeting === "Hello, Susan!");
+```
+
+1. strBuilder 生成的函数支持无限次调用，直到参数为空（undefined）
+2. 调用了两次`hello`方法，是相互**独立的**
+
+```js
+function strBuilder(str1) {
+  return str2 => typeof str2 === 'string' ?  strBuilder(`${str1}${str2}` : str1
 }
 ```
 
-You will get the following JSON response:
-
-```json
-{
-  "entries": [
-    {
-      "id": "4fe43afe",
-      "updated_at": "2020-07-05T22:56:15.012Z"
-    }
-  ]
-}
-```
-
-The `id` here is fine, but the `updated_at` doesn’t quite conform to the camel
-case convention in JavaScript. Let’s change it by using an alias.
-
-```graphql
-query GetEntries {
-  entries {
-    id
-    updatedAt: updated_at
-  }
-}
-```
-
-Which yields the following:
-
-```json
-{
-  "entries": [
-    {
-      "id": "4fe43afe",
-      "updatedAt": "2020-07-05T22:56:15.012Z"
-    }
-  ]
-}
-```
-
-Creating an alias in GraphQL is easy. Simply add a colon and new name next to
-the field you want to rename.
-
-## Aliasing fields with arguments
-
-The examples above only cover fields that don’t have any arguments. When
-creating an alias on a field that contains arguments, the syntax is slightly
-different. Instead of the alias appearing right to the field, it’s placed on the
-left.
-
-Take a look at the following example. It contains the `updated_at`field, but
-again, we want to rename.
-
-```graphql
-query GetEntries {
-  entries {
-    id
-    updated_at(format: “MM dd, YYYY”)
-  }
-}
-```
-
-Now with an alias:
-
-```graphql
-query GetEntries {
-  entries {
-    id
-    updatedAt: updated_at(format: “MM dd, YYYY”)
-  }
-}
-```
-
-And the result:
-
-```json
-{
-  "entries": [
-    {
-      "id": "4fe43afe",
-      "updatedAt": "July 5, 2020"
-    }
-  ]
-}
-```
-
-## Requesting a single field more than once
-
-What’s great about aliases is you can request the same field several times, but
-yield different results. Take a look at this example:
-
-```graphql
-query GetEntries {
-  entries {
-    id
-    updated_at
-    updated_at(format: “MM dd, YYYY”)
-  }
-}
-```
-
-Running this query would yield an error because two of the field names are the
-same. You can use an alias to here to mitigate the error.
-
-```graphql
-query GetEntries {
-  entries {
-    id
-    updated_at: updatedAt
-    updatedAtHumanized: updated_at(format: “MM dd, YYYY”)
-  }
-}
-```
-
-Running the updated query would give us the results we’re expecting.
-
-```json
-{
-  "entries": [
-    {
-      "id": "4fe43afe",
-      "updatedAt": "2020-07-05T22:56:15.012Z",
-      "updatedAtHumanized": "July 5, 2020"
-    }
-  ]
-}
-```

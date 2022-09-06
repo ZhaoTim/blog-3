@@ -1,6 +1,6 @@
 baseURL = "https://devinschulz.com"
 languageCode = "en-us"
-title = "Devin Schulz"
+title = "Tim Zhao"
 titleCaseStyle = "AP"
 pygmentsUseClasses = true
 enableGitInfo = true
@@ -24,46 +24,21 @@ timeFormatShort = "Jan 02, 2006"
 description = "Articles about React, JavaScript, testing, best practices, performance, and everything else related to front-end development."
 
 [params.author]
-name = "Devin Schulz"
+name = "TimZhao"
 homepage = "https://devinschulz.com"
 twitterHandle = "devinschulz_"
 
 [menu]
 
 [[menu.main]]
-name = "Tags"
-weight = 0
-url = "/tags"
-
-[[menu.main]]
-name = "About"
+name = "Note"
 weight = 1
-url = "/about"
+url = "/note"
 
 [[menu.main]]
-name = "Uses"
-weight = 2
-url = "/uses"
-
-[[menu.main]]
-name = "Privacy"
-weight = 4
-url = "/privacy"
-
-[[menu.footer]]
-name = "RSS"
-weight = 2
-url = "/posts/index.xml"
-
-[[menu.footer]]
-name = "Github"
-weight = 5
-url = "https://github.com/devinschulz"
-
-[[menu.footer]]
-name = "LinkedIn"
-weight = 4
-url = "https://linkedin.com/in/devinschulz"
+name = "Bookmarks"
+weight = 1
+url = "/bookmarks"
 
 [related]
 threshold = 80
@@ -98,5 +73,5 @@ autoHeadingIDType = "github"
 
 [markup.goldmark.renderer]
 hardWraps = false
-unsafe = false
+unsafe = true
 xHTML = false

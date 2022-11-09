@@ -31,14 +31,9 @@ twitterHandle = "devinschulz_"
 [menu]
 
 [[menu.main]]
-name = "Note"
+name = "首页"
 weight = 1
-url = "/note"
-
-[[menu.main]]
-name = "Bookmarks"
-weight = 1
-url = "/bookmarks"
+url = "/"
 
 [related]
 threshold = 80

@@ -2,39 +2,38 @@
 title: About
 ---
 
-I'm Devin Schulz, a software developer based in Ottawa, Canada. I specialize in
-building web applications that are performant, accessible, and focused on the
-user experience.
+```js
+const asyncPool = async (poolLimit, array, iteratorFn) => {
+  const resultList = [];
+  const executingList = [];
+  for(const item of array) {
+    const p = Promise.resolve().then(() => {
+	  return iteratorFn(item, array);
+    });
+    resultList.push(p);
+    if (poolLimit <= array.length) {
+      const e = p.then(() => {
+        return executingList.splice(executingList.indexOf(e), 1);
+      });
+      executingList.push(e);
+      if (executingList.length >= poolLimit) {
+        await Promise.race(executingList);
+      }
+    }
+  }
+  return Promise.all(resultList);
+}
+```
 
-My professional journey started as a freelance graphic designer who loved to
-code. During my time as a freelancer, I transitioned from telling people how the
-designs look and operate to the one implementing them.
 
-I chose to end my freelance venture after deciding I wanted something a little
-more permanent. Pursuing clients and ensuring you always have work lined up is
-**exhausting**. I ended up joining [Soshal](https://soshal.ca/), a humble agency
-that I had once worked with on a couple projects.
+`for...of`在async函数里使用时，`for...of`里的`await`关键字会暂停遍历。
 
-A year and a half year went by, and I transitioned to working remotely at
-[InVision](https://invisionapp.com), for what was my longest stint. I watched
-and helped the company grow from 76 people to well over 800. I had the
-opportunity to build out useful features and products like
-[Marketplace](https://marketplace.invisionapp.com/),
-[Design Disruptors](https://www.designdisruptors.com/),
-[Boards](https://www.invisionapp.com/inside-design/boards-share-design-inspiration-assets/),
-[Inspect](https://www.invisionapp.com/feature/inspect/),
-[Craft](https://www.invisionapp.com/craft), and most recently, everything
-related to comments.
+`p`是一个promise，它的完成时机取决于`iteratorFn`返回的promise。
 
-As of May 2020, I took a lead role in helping
-[Cape Privacy](https://capeprivacy.com) build a platform for data scientists
-which marries privacy and machine learning. I defined the front end
-architecture, and currently building out the core product.
+3. `e`是一个promise，它的作用是，等到`p`成功以后，那么把这个任务从`executingList`中移出。
+4. `executingList.length >= poolLimit`时，这块比较绕，举个例子吧，如果我们的`poolLimit`值为5，那么当我们遍历到第五个item的时候，我们不能继续无脑地接着遍历后面的item了，而是要等到当前`executingList`里的某个任务结束了，再接着遍历。
+5. `await Promise.race(executingList)`的意义是，一旦`executingList`中的任一个任务成功，那么才继续遍历。这种写法很牛逼。
+6. 等到所有的`for...of`都结束了，才会执行`return Promise.all(resultList)`，返回所有的结果。
 
-I hope the content I share can provide you, the reader, with first-hand
-knowledge. I look forward to delivering suggestions and approaches that everyone
-can benefit from.
-
-I'm happy to have you along for the ride!
-
-&mdash; Devin
+总结：
+上面的这种实现方式真高级，也很绕，如果对async函数，for...of，Promise掌握得不好，甚至看不懂。
